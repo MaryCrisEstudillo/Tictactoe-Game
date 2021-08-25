@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,900;1,500&family=Poiret+One&family=Poppins&display=swap" rel="stylesheet">
+<header id="headermain"><img  src="images/tictactoetitle.png"></header>
+<title>TicTacToe Game</title>
+<body>
+    <div id="headerfront" class="front" ><img  src="images/tictactoetitlewhite.png"></div>
+    <div id="frontgame" class="front" ></div>
+    <div id="start" class="front" >Start Game</div>
+    <p id="Pturn"></p>
+    <div id="Restart" onclick="restartFunc()">Restart</div>
+    <div id="container">
+        <div  id="boxOne" class="box" data-row="0" data-column="0"></div>
+        <div  id="boxTwo" class="box" data-row="0" data-column="1"></div>
+        <div  id="boxThree" class="box" data-row="0" data-column="2"></div>
+        <br>
+        <div  id="boxFour" class="box" data-row="1" data-column="0"></div>
+        <div  id="boxFive" class="box" data-row="1" data-column="1"></div>
+        <div  id="boxSix" class="box" data-row="1" data-column="2"></div>
+        <br>
+        <div  id="boxSeven" class="box" data-row="2" data-column="0"></div>
+        <div  id="boxEight" class="box" data-row="2" data-column="1"></div>
+        <div  id="boxNine"  class="box" data-row="2" data-column="2"></div>
+
+       
+    </div>
+    <div class="lineVertical1"></div>
+    <div class="lineVertical2"></div>
+    <div class="lineHorizontal1"></div>
+    <div class="lineHorizontal2"></div>
+    <div id="Next">Next</div>
+    <div id="Previous">Previous</div>
+    <div id="NewGame"></div>
+    <img class="ow" src="images/O image.png">
+    <img class="eks" src="images/X image.png">
+</body>
+<link rel="stylesheet" href="styles.css"/>
+<Script src="script.js"></Script>
+</html>
