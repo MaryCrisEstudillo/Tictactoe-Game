@@ -1,45 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@900&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,900;1,500&family=Poiret+One&family=Poppins&display=swap" rel="stylesheet">
-<header id="headermain"><img  src="images/tictactoetitle.png"></header>
-<title>TicTacToe Game</title>
-<body>
-    <div id="headerfront" class="front" ><img  src="images/tictactoetitlewhite.png"></div>
-    <div id="frontgame" class="front" ></div>
-    <div id="start" class="front" >Start Game</div>
-    <p id="Pturn"></p>
-    <div id="Restart" onclick="restartFunc()">Restart</div>
-    <div id="container">
-        <div  id="boxOne" class="box" data-row="0" data-column="0"></div>
-        <div  id="boxTwo" class="box" data-row="0" data-column="1"></div>
-        <div  id="boxThree" class="box" data-row="0" data-column="2"></div>
-        <br>
-        <div  id="boxFour" class="box" data-row="1" data-column="0"></div>
-        <div  id="boxFive" class="box" data-row="1" data-column="1"></div>
-        <div  id="boxSix" class="box" data-row="1" data-column="2"></div>
-        <br>
-        <div  id="boxSeven" class="box" data-row="2" data-column="0"></div>
-        <div  id="boxEight" class="box" data-row="2" data-column="1"></div>
-        <div  id="boxNine"  class="box" data-row="2" data-column="2"></div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>TicTacToe Game</title>
+  <meta name="description" content="A two player Tic Tac Toe game you can play in the browser.">
+  <meta name="theme-color" content="#000000">
 
-       
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@900&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <script>
+    /* Runs before first paint so the page never flashes the wrong theme.
+       A saved choice wins; otherwise follow the operating system. */
+    (() => {
+      let saved = null;
+      try { saved = localStorage.getItem('tictactoe-theme'); } catch (error) { /* storage blocked */ }
+      const dark = saved
+        ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    })();
+  </script>
+</head>
+<body>
+  <!-- Oversized X and O artwork that frames the page. Purely decorative. -->
+  <div class="decor" aria-hidden="true">
+    <span class="decor__x"></span>
+    <span class="decor__o"></span>
+  </div>
+
+  <!-- Title screen, covers the game until "Start Game" is pressed. -->
+  <div class="splash" id="splash">
+    <div class="decor" aria-hidden="true">
+      <span class="decor__x"></span>
+      <span class="decor__o"></span>
     </div>
-    <div class="lineVertical1"></div>
-    <div class="lineVertical2"></div>
-    <div class="lineHorizontal1"></div>
-    <div class="lineHorizontal2"></div>
-    <div id="Next">Next</div>
-    <div id="Previous">Previous</div>
-    <div id="NewGame"></div>
-    <img class="ow" src="images/O image.png">
-    <img class="eks" src="images/X image.png">
+    <img class="splash__title" src="images/tictactoetitlewhite.png" alt="Tic Tac Toe" width="1558" height="272">
+    <button type="button" class="btn btn--start" id="start">Start Game</button>
+  </div>
+
+  <button type="button" class="btn theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode">
+    <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+    </svg>
+    <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M19.1 4.9l-1.5 1.5M6.4 17.6l-1.5 1.5" />
+    </svg>
+  </button>
+
+  <!-- Shown each time the player enters the game, so the toggle gets noticed. -->
+  <div class="hint" id="theme-hint" role="status" hidden>
+    <p class="hint__text">Tip: switch between light and dark mode here.</p>
+    <button type="button" class="btn btn--hint" id="theme-hint-dismiss">Got it</button>
+  </div>
+
+  <header class="banner">
+    <img class="banner__art banner__art--light" src="images/tictactoetitle.png" alt="Tic Tac Toe" width="1652" height="366">
+    <img class="banner__art banner__art--dark" src="images/tictactoetitlewhite.png" alt="Tic Tac Toe" width="1558" height="272">
+  </header>
+
+  <main class="game">
+    <p class="status" id="status" role="status">Player X Turn</p>
+
+    <button type="button" class="btn btn--restart" id="restart">Restart</button>
+
+    <div class="board" id="board">
+      <button type="button" class="cell" data-index="0"></button>
+      <button type="button" class="cell" data-index="1"></button>
+      <button type="button" class="cell" data-index="2"></button>
+      <button type="button" class="cell" data-index="3"></button>
+      <button type="button" class="cell" data-index="4"></button>
+      <button type="button" class="cell" data-index="5"></button>
+      <button type="button" class="cell" data-index="6"></button>
+      <button type="button" class="cell" data-index="7"></button>
+      <button type="button" class="cell" data-index="8"></button>
+    </div>
+
+    <!-- Step back and forth through a finished game. Revealed once it ends. -->
+    <div class="replay">
+      <button type="button" class="btn btn--nav" id="previous" hidden>Previous</button>
+      <button type="button" class="btn btn--nav" id="next" hidden>Next</button>
+    </div>
+  </main>
+
+  <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+  <script src="theme.js" defer></script>
+  <script src="confetti.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
-<link rel="stylesheet" href="styles.css"/>
-<Script src="script.js"></Script>
 </html>

@@ -1,172 +1,158 @@
-let arrBoxes = [ //2D array for the X and O inputs
-  ["","",""],
-  ["","",""],
-  ["","",""]
+'use strict';
+
+/* Every set of three squares that wins the game. */
+const WINNING_LINES = [
+  [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+  [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+  [0, 4, 8], [2, 4, 6],            // diagonals
 ];
-let nextArr = []; //blank array for next button function
-let prevArr = []; //blank array for previous button function
 
+const SPLASH_FADE = 300; // matches the .splash transition
 
-  
-let arrHistory = []; //blank array for history of tictactoe 
-let arrClickedNum = 0; // value set for clicking the boxes to have value
-let endGame = false; //end game boolean to make the game keep going because it not the end.
-let i; // use for for looping
+/* Sampled from the mark artwork, so the confetti matches the pieces. */
+const MARK_COLORS = {
+  x: '#e43996',
+  o: '#a0cc3a',
+};
 
-const boxArr = document.querySelector('box'); //dom selector for the tictactoe boxes as array
-const boxes = document.querySelectorAll('.box')
-boxes.forEach(box => {
-  box.addEventListener('click',whenClicked, {once:true}) //setting a each boxes to be use in function
-})
+const boardEl = document.getElementById('board');
+const cells = Array.from(boardEl.querySelectorAll('.cell'));
+const statusEl = document.getElementById('status');
+const restartBtn = document.getElementById('restart');
+const previousBtn = document.getElementById('previous');
+const nextBtn = document.getElementById('next');
+const splash = document.getElementById('splash');
+const startBtn = document.getElementById('start');
 
-let input; //declaring the variable input for the X and O input 
-function toStartGame(){
-  input = false;
-  if(input){
-    document.getElementById('Pturn').innerHTML = "Player O Turn"
-  }else {document.getElementById('Pturn').innerHTML = "Player X Turn" } //showing the move turn in div "Pturn"
-  
-} 
-toStartGame()
-function toEndGame(){
-  endGame = true;
-  document.getElementById('Previous').classList.add('showBtn'); // to make the previous button appear when the game already has a winner
+let marks;       // one entry per square: 'x', 'o' or null
+let moves;       // square indexes, in the order they were played
+let currentMark; // whose turn it is
+let isOver;      // true once somebody has won or the board is full
+let shownMoves;  // how many moves the board is displaying (for the replay)
+
+function newGame() {
+  marks = new Array(cells.length).fill(null);
+  moves = [];
+  currentMark = 'x';
+  isOver = false;
+  shownMoves = 0;
+
+  statusEl.textContent = 'Player X Turn';
+  Confetti.stop();
+  render();
 }
 
-function whenClicked(e) { //functions when boxes or tictactoe are clicked
-  if (!endGame){
-    const boxesInside = e.target //targetting the tictactoe boxes.
-    const boxesImage = input ? "bilog": "ekis" //if else shorthand for the input image in the boxes
-    const boxesRow = boxesInside.dataset.row //setting the data set from html
-    const boxesColumn = boxesInside.dataset.column //concatination
-    arrBoxes[boxesRow][boxesColumn] = boxesImage
-    boxesInside.classList.add(boxesImage) //adding classlist when clicked
-    if(input=!input){
-      document.getElementById('Pturn').innerHTML = "Player O Turn"
-    }else {document.getElementById('Pturn').innerHTML = "Player X Turn"} //printing the turns
-    arrHistory[arrClickedNum] = [arrClickedNum, boxesImage, boxesRow, boxesColumn];
-    arrClickedNum++      
-    
-    
-// winning combinations
-    prevArr.push([boxesImage,boxesRow,boxesColumn])
-    for (let bRow =0; bRow < arrBoxes.length; bRow++){
-      let a = arrBoxes[bRow][0];
-      let b = arrBoxes[bRow][1];
-      let c = arrBoxes[bRow][2];
-  
-      if (a && a === b && b === c){     //Holizontal winning combo
-        toEndGame();
-         if(input=== true){
-          document.getElementById('Pturn').innerHTML = `"X" Won!`;
-         }else {document.getElementById('Pturn').innerHTML = `"O" Won!`;}
-        return;
-      }  
-    }
-    for (let bColumn = 0; bColumn < arrBoxes.length; bColumn++){
-      let a = arrBoxes[0][bColumn];
-      let b = arrBoxes[1][bColumn];
-      let c = arrBoxes[2][bColumn];
-    
-      if (a && a === b && b === c){
-        toEndGame();
-        if(input=== true){
-          document.getElementById('Pturn').innerHTML = `"X" Won!`;
-         }else {document.getElementById('Pturn').innerHTML = `"O" Won!`;}
-        return;
-      }
-  
-    }
-    let a = arrBoxes[0][0];
-    let b = arrBoxes[1][1];
-    let c = arrBoxes[2][2];
-    let d = arrBoxes[2][0];
-    let f = arrBoxes[0][2];
-
-    if ((a && a === b && b === c)||(d && d === f && f === b)) { //vertical and diagonal winning combo
-      toEndGame();
-      if(input=== true){
-        document.getElementById('Pturn').innerHTML = `"X" Won!`;
-       }else {document.getElementById('Pturn').innerHTML = `"O" Won!`;}
-    }
-
-    // For Tie Win
-    if (arrHistory.length === 9){
-      toEndGame();
-      document.getElementById('Pturn').innerHTML = `Its a Tie!`;
-    }
+/* Draws the first `shownMoves` moves. While a game is in progress that is all
+   of them; the replay buttons rewind it afterwards. */
+function render() {
+  const visible = new Array(cells.length).fill(null);
+  for (let i = 0; i < shownMoves; i++) {
+    visible[moves[i]] = marks[moves[i]];
   }
-}
 
-//to make the boxes blank again
-function reStart (){ 
-  arrBoxes = [
-    ["","",""],
-    ["","",""],
-    ["","",""]
-  ];
-  
-  arrHistory = [];
-  arrClickedNum = 0;
-  prevArr = [];
-  nextArr =[];
-  endGame = false;
-  
-  //To Start Game again
-  toStartGame()
-  boxes.forEach(box =>{
-    box.addEventListener('click',whenClicked, {once:true});
-    box.classList.remove("bilog","ekis");
+  cells.forEach((cell, index) => {
+    const mark = visible[index];
+    cell.classList.toggle('cell--x', mark === 'x');
+    cell.classList.toggle('cell--o', mark === 'o');
+    cell.disabled = isOver || marks[index] !== null;
+    cell.setAttribute(
+      'aria-label',
+      `Row ${Math.floor(index / 3) + 1}, column ${(index % 3) + 1}: ` +
+        (mark ? mark.toUpperCase() : 'empty')
+    );
   });
 
-  //Functions for Next and Previous buttons
-
-  //function for Next Button when clicked
+  previousBtn.hidden = !isOver || shownMoves === 0;
+  nextBtn.hidden = !isOver || shownMoves === moves.length;
 }
-document.getElementById("Restart").addEventListener('click',reStart);
-document.getElementById("Previous").addEventListener('click',() =>{
-  nextArr.push(...prevArr.splice(prevArr.length-1,1))
-  for (i=0; i<nextArr.length; i++){
-    document.querySelector(`[data-row='${nextArr[i][1]}'][data-column='${nextArr[i][2]}']`)
-    .classList.remove(nextArr[i][0])
+
+function findWinningLine(mark) {
+  return WINNING_LINES.find((line) => line.every((index) => marks[index] === mark));
+}
+
+/* Blends a colour towards white (positive amount) or black (negative). */
+function mix(hex, amount) {
+  const value = parseInt(hex.slice(1), 16);
+  const target = amount > 0 ? 255 : 0;
+  const weight = Math.abs(amount);
+  const channel = (shift) => {
+    const c = (value >> shift) & 255;
+    return Math.round(c + (target - c) * weight);
+  };
+  return `rgb(${channel(16)}, ${channel(8)}, ${channel(0)})`;
+}
+
+/* Five tones of the winner's own colour. */
+function paletteFor(mark) {
+  const base = MARK_COLORS[mark];
+  return [base, mix(base, 0.3), mix(base, 0.55), mix(base, -0.2), mix(base, -0.38)];
+}
+
+/* Centre of an element, in viewport coordinates. */
+function centreOf(element) {
+  const { left, right, top, bottom } = element.getBoundingClientRect();
+  return { x: (left + right) / 2, y: (top + bottom) / 2 };
+}
+
+function endGame(message) {
+  isOver = true;
+  statusEl.textContent = message;
+  render();
+}
+
+function play(index) {
+  if (isOver || marks[index] !== null) return;
+
+  marks[index] = currentMark;
+  moves.push(index);
+  shownMoves = moves.length;
+
+  const winningLine = findWinningLine(currentMark);
+  if (winningLine) {
+    endGame(`"${currentMark.toUpperCase()}" Won!`);
+    // The middle square of a line is its centre, so the burst starts there.
+    Confetti.burst({
+      ...centreOf(cells[winningLine[1]]),
+      colors: paletteFor(currentMark),
+    });
+    return;
   }
-  if (nextArr.length<prevArr.length){
-    document.getElementById('Next').classList.add("showBtn");
-  } 
-  if (prevArr.length==0){
-    document.getElementById('Previous').classList.remove("showBtn");
+
+  if (moves.length === cells.length) {
+    endGame('Its a Tie!');
+    // Nobody won, so both colours go up, from the middle of the board.
+    Confetti.burst({
+      ...centreOf(boardEl),
+      colors: [...paletteFor('x'), ...paletteFor('o')],
+    });
+    return;
   }
+
+  currentMark = currentMark === 'x' ? 'o' : 'x';
+  statusEl.textContent = `Player ${currentMark.toUpperCase()} Turn`;
+  render();
+}
+
+/* Steps the finished game backwards or forwards one move. */
+function stepReplay(delta) {
+  shownMoves = Math.min(moves.length, Math.max(0, shownMoves + delta));
+  render();
+}
+
+boardEl.addEventListener('click', (event) => {
+  const cell = event.target.closest('.cell');
+  if (cell) play(Number(cell.dataset.index));
 });
 
-//function for Previous Button when clicked
-document.getElementById("Next").addEventListener('click',() =>{
-  prevArr.push(...nextArr.splice(nextArr.length-1,1))
-  for(i=0; i<prevArr.length; i++){
-    document.querySelector(`[data-row='${prevArr[i][1]}'][data-column='${prevArr[i][2]}']`)
-    .classList.add(prevArr[i][0])
-  }
-  if (prevArr.length<nextArr.length){
-    document.getElementById("Previous").classList.add("showBtn");
-  }
-  if (nextArr.length==0){
-    document.getElementById("Next").classList.remove("showBtn");
-  }
+restartBtn.addEventListener('click', newGame);
+previousBtn.addEventListener('click', () => stepReplay(-1));
+nextBtn.addEventListener('click', () => stepReplay(1));
 
+startBtn.addEventListener('click', () => {
+  splash.classList.add('is-hiding');
+  setTimeout(() => {
+    splash.hidden = true;
+  }, SPLASH_FADE);
 });
-//setting the Start game button div then dissappear when clicked
-  
-document.getElementById('start').addEventListener('click', () =>{
-const header = document.getElementById('headerfront');
-const frontGame = document.getElementById('frontgame');
-const starter = document.getElementById('start');
 
-header.style.display = "none";
-frontGame.style.display = "none";
-starter.style.display = "none";
-
-})
-
-
-    
-
-  
+newGame();

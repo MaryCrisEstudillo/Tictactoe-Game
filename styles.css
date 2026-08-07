@@ -1,265 +1,551 @@
-*{
-    margin: 0vw;
-    padding: 0vw;
-}
-html{
-    height: 50vw;}
-#headermain img{
-    position: absolute;
-    top: -.5vw;
-    left: 5.2vw;
-    width: 90vw;
-    height: 20vw;
-}
-#headerfront img{
-    position: absolute;
-    top: 20vw;
-    left: 34vw;
-    width: 30vw;
-    height: 5vw;
-    z-index: 21;
-}
-#start{
-background-color: rgb(255, 255, 255);
-font-size: 2vw;
-color: #dbbf1d;
-height: 2.5vw;
-width: 13.5vw;
-position: absolute;
-border-radius: 1.5vw;
-top: 28vw;
-left: 41.6vw;
-font-family: 'Montserrat Alternates', sans-serif;
-z-index: 20;
-cursor:pointer;
-transition: .5s;
-text-align: center;
-padding: .3vw;
+/* ==========================================================================
+   Tic Tac Toe — mobile first
+   Layout is a single centred column that grows with the viewport. Every size
+   is driven by the tokens below, so there are very few breakpoints.
+   ========================================================================== */
 
-}
-#start:hover{
-  
-    color: #ffe600;
-    height: 2.7vw;
-    width: 14.5vw;
-    text-align: center;
-    padding: .3vw;
-    font-size: 2.2vw;
-    box-shadow: inset 15.5vw 0 0 0 rgb(143, 143, 143);
-    border: .1vw solid white;
+:root {
+  /* Fixed brand colours, the same in both themes. */
+  --white: #ffffff;
+  --gold: #dbbf1d;
+  --gold-bright: #ffe600;
+  --grey-fill: rgb(143, 143, 143);
+  --green: #0bd99a;
+  --green-dark: #12946d;
+
+  /* Light theme. The dark values are further down; `data-theme` on <html>
+     picks between them and is set before first paint. */
+  color-scheme: light;
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f4f4f4;
+  --line: rgb(124, 124, 124);
+  --board-edge: rgb(73, 73, 73);
+  --text-muted: #797979;
+  --shadow: rgba(0, 0, 0, 0.18);
+  --blue: rgb(0, 100, 250);
+  --blue-dark: rgb(0, 63, 134);
+
+  /* The board never outgrows the screen, in either orientation. */
+  --board-size: min(88vw, 62vh, 380px);
+  --board-radius: clamp(18px, 6vw, 30px);
+  --rule: 2px;
+
+  /* Decorative corner artwork. */
+  --decor-size: min(56vw, 560px);
+
+  --stack-gap: clamp(0.7rem, 2.6vw, 1.15rem);
+  --edge-inset: clamp(0.6rem, 2vw, 1.25rem);
+  --toggle-size: 2.75rem;
+  --font-display: "Montserrat Alternates", sans-serif;
+  --font-body: "Poppins", sans-serif;
 }
 
-
-
-body{
-    background-size: cover;
-    background-repeat: no-repeat;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Dark theme. The mark artwork and the green/gold accents are vivid enough to
+   carry over untouched; only the surfaces, rules and blue need rebalancing. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #14161a;
+  --surface: #1c1f26;
+  --surface-hover: #262a33;
+  --line: #454b57;
+  --board-edge: #565d6a;
+  --text-muted: #9aa1ad;
+  --shadow: rgba(0, 0, 0, 0.55);
+  --blue: #5b9cff;
+  --blue-dark: #9cc3ff;
 }
 
-#frontgame{
-    background-color: black;
-    background-size: cover;
-    background-repeat: no-repeat;
-    width: 100vw;
-    height: 58.5vw;
-    position: absolute;
-    z-index: 20;
-
-}
-#Pturn{
-font-size: 1.7vw;
-color: #797979;
-position: absolute;
-border-radius: 1.5vw;
-top: 8.5vw;
-left: 45,2vw;
-font-family: 'Montserrat Alternates', sans-serif;
-font-family: 'Poiret One', cursive;
-font-family: 'Poppins', sans-serif;
-}
-#Restart{
-background-color: rgb(255, 255, 255);
-font-size: 1.7vw;
-color: #0BD99A;
-height: 2.3vw;
-width: 8vw;
-position: absolute;
-border-radius: 1.5vw;
-top: 11.8vw;
-left: 45,2vw;
-border: .11vw solid rgb(124, 124, 124);
-font-family: 'Montserrat Alternates', sans-serif;
-text-align: center;
-padding: .2vw;
-cursor: pointer;
-transition: .5s;
-}
-#Restart:hover{
-  
-    color: #ffffff;
-    height: 2.3vw;
-    width: 8vw;
-    text-align: center;
-    padding: .3vw;
-    font-size: 1.7vw;
-    box-shadow: inset 15.5vw 0 0 0 #0BD99A;
-    border: .1vw solid #12946d;
-}
-#container{
-background-color: rgb(255, 255, 255);
-max-width:25%;
-height:10%;
-display: flex;
-flex-flow: row wrap;
-justify-content:space-around;
-margin-top: 16.6vw;
-border-radius: 2vw;
-border: .15vw solid rgb(73, 73, 73);
-box-shadow: .8vw .8vw 1vw 0 rgba(0, 0, 0, .18);
-
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.box.bilog{
-background-image: url(images/O\ input.png);
-width: 3vw;
-height: 3vw;
-background-size: cover;
-
+body,
+p {
+  margin: 0;
 }
-.box.ekis{
-  background-image: url(images/X\ input.png);
+
+/* Author-level `display` on a component otherwise beats the browser's
+   `[hidden] { display: none }`. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  padding: clamp(1rem, 5vw, 2.5rem) 1rem;
+  background-color: var(--page-bg);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Decorative artwork
+   The source PNGs already place their art in one quadrant of a square canvas
+   (the X top-right, the O bottom-left), so pinning the canvas to a corner
+   lands the artwork exactly where it belongs.
+   -------------------------------------------------------------------------- */
+
+.decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.decor__x,
+.decor__o {
+  position: absolute;
+  width: var(--decor-size);
+  height: var(--decor-size);
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.35;
+}
+
+.decor__x {
+  top: 0;
+  right: 0;
+  background-image: url("images/X image.png");
+  background-position: top right;
+}
+
+.decor__o {
+  left: 0;
+  bottom: 0;
+  background-image: url("images/O image.png");
+  background-position: bottom left;
+}
+
+/* --------------------------------------------------------------------------
+   Title screen
+   -------------------------------------------------------------------------- */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 4vw, 1.75rem);
+  padding: 1rem;
+  background-color: #000;
+  transition: opacity 0.3s ease;
+}
+
+/* Inside the splash the artwork sits on top of the black backdrop but stays
+   behind the title and the start button. */
+.splash .decor {
+  z-index: 0;
+}
+
+.splash__title,
+.splash .btn {
+  position: relative;
+  z-index: 1;
+}
+
+.splash.is-hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash__title {
+  width: min(72vw, 460px);
+  height: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Page title
+   The wordmark PNG sits inside a large transparent canvas, so the image is
+   scaled up and offset to crop the box down to the lettering itself. The
+   percentages are derived from the artwork's bounds within the canvas.
+   -------------------------------------------------------------------------- */
+
+.banner {
+  position: relative;
+  z-index: 1;
+  width: min(80vw, 480px);
+  aspect-ratio: 580 / 111; /* the wordmark's own proportions */
+  overflow: hidden;
+}
+
+/* The light wordmark is a grey outline that would vanish on a dark page, so
+   dark mode uses the solid white wordmark the title screen already ships.
+   Only one is in the DOM's accessibility tree at a time. */
+.banner__art--light {
+  position: absolute;
+  width: 284.9%; /* scales the lettering to the full width of the box */
+  height: auto;
+  top: -24.4%;
+  left: -92%;
+}
+
+/* That artwork is full bleed, so it needs no cropping. */
+.banner__art--dark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+:root:not([data-theme="dark"]) .banner__art--dark,
+:root[data-theme="dark"] .banner__art--light {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Game
+   -------------------------------------------------------------------------- */
+
+.game {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--stack-gap);
+}
+
+.status {
+  color: var(--text-muted);
+  font-size: clamp(1.05rem, 4.5vw, 1.5rem);
+  text-align: center;
+  min-height: 1.4em;
+  transition: color 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   One base style; each variant only supplies its colours. Hovering wipes the
+   fill colour across the button from the left.
+   -------------------------------------------------------------------------- */
+
+.btn {
+  --btn-hover-text: var(--white);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem; /* comfortable touch target */
+  padding: 0.32em 1.15em;
+  border: var(--rule) solid var(--btn-border);
+  border-radius: 999px;
+  background-color: var(--surface);
+  color: var(--btn-text);
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 4.2vw, 1.5rem);
+  line-height: 1.1;
+  cursor: pointer;
+  transition: color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease,
+    transform 0.25s ease, background-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--btn-fill);
+  outline-offset: 3px;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .btn:hover {
+    color: var(--btn-hover-text);
+    border-color: var(--btn-hover-border);
+    box-shadow: inset 16em 0 0 0 var(--btn-fill);
+  }
+
+  .btn--start:hover {
+    transform: scale(1.075);
+  }
+}
+
+.btn--start {
+  --btn-text: var(--gold);
+  --btn-hover-text: var(--gold-bright);
+  --btn-border: var(--white);
+  --btn-hover-border: var(--white);
+  --btn-fill: var(--grey-fill);
+
+  font-size: clamp(1.15rem, 5.5vw, 1.8rem);
+}
+
+.btn--restart {
+  --btn-text: var(--green);
+  --btn-border: var(--line);
+  --btn-hover-border: var(--green-dark);
+  --btn-fill: var(--green);
+}
+
+.btn--nav {
+  --btn-text: var(--blue);
+  --btn-border: var(--line);
+  --btn-hover-border: var(--blue-dark);
+  --btn-fill: var(--blue);
+}
+
+/* Smaller, and pinned to the corner of the hint it sits in. */
+.btn--hint {
+  --btn-text: var(--green);
+  --btn-border: var(--line);
+  --btn-hover-border: var(--green);
+  --btn-fill: var(--green);
+
+  align-self: flex-end;
+  min-height: 2.5rem;
+  font-size: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   Theme toggle
+   -------------------------------------------------------------------------- */
+
+.theme-toggle {
+  --btn-text: var(--text-muted);
+  --btn-border: var(--line);
+  --btn-hover-border: var(--line);
+  --btn-fill: var(--surface-hover);
+  --btn-hover-text: var(--text-muted);
+
+  position: fixed;
+  top: var(--edge-inset);
+  left: var(--edge-inset);
+  z-index: 6;
+  width: var(--toggle-size);
+  min-height: var(--toggle-size);
+  padding: 0;
+  border-radius: 50%;
+}
+
+.theme-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Each icon shows the theme it switches *to*: a moon while light, sun while dark. */
+:root:not([data-theme="dark"]) .theme-toggle__sun,
+:root[data-theme="dark"] .theme-toggle__moon {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Theme hint
+   A one-off nudge under the toggle, pointing at it with a notch.
+   -------------------------------------------------------------------------- */
+
+.hint {
+  position: fixed;
+  top: calc(var(--edge-inset) + var(--toggle-size) + 0.6rem);
+  left: var(--edge-inset);
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: max-content;
+  max-width: min(14.5rem, calc(100vw - (2 * var(--edge-inset))));
+  padding: 0.85rem 1rem;
+  border: var(--rule) solid var(--line);
+  border-radius: 14px;
+  background-color: var(--surface);
+  box-shadow: 0 0.5rem 1.25rem var(--shadow);
+  opacity: 0;
+  transform: translateY(-0.4rem);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hint.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* The notch. A rotated square picks up two of the border's edges cleanly. */
+.hint::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 1.05rem;
+  width: 12px;
+  height: 12px;
+  background-color: var(--surface);
+  border-top: var(--rule) solid var(--line);
+  border-left: var(--rule) solid var(--line);
+  transform: rotate(45deg);
+}
+
+.hint__text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   Board
+   A 3x3 grid. The rules between squares are cell borders rather than floating
+   elements, so they stay aligned at every size.
+   -------------------------------------------------------------------------- */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: var(--board-size);
+  background-color: var(--surface);
+  border: var(--rule) solid var(--board-edge);
+  border-radius: var(--board-radius);
+  box-shadow: 0.7rem 0.7rem 1rem var(--shadow);
+  overflow: hidden; /* clips the rules to the rounded corners */
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.cell {
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background-color: var(--surface);
+  background-repeat: no-repeat;
+  background-position: center;
   background-size: cover;
-  width: 3vw;
-  height: 3vw;
-
-}
-#boxOne, #boxTwo, #boxThree, #boxFour, #boxFive, #boxSix, #boxSeven, #boxEight, #boxNine{
-    background-color: #ffffff;
-    flex: 1 0 5%;
-    width:2vw;
-    height:2vw;
-    padding: 3vw;
-   align-items: center;
-   border-radius: 2vw;
-   text-align: center;
-   border: none;
-   font-size: 6vw;
-   font-family: 'Montserrat Alternates', sans-serif;
-   cursor: pointer;
-   margin: 0;
-}
-.lineVertical1{
-height: 28vw;
-width: .15vw;
-background-color:rgb(124, 124, 124) ;
-position: absolute;
-top: 14.7vw;
-left: 45.34vw;
-}
-.lineVertical2{
-height: 28vw;
-width: .15vw;
-background-color:rgb(124, 124, 124) ;
-position: absolute;
-top: 14.7vw;
-right: 45.34vw;
-}
-.lineHorizontal1{
-height: .15vw;
-width: 29vw;
-background-color:rgb(124, 124, 124) ;
-position: absolute;
-top: 24.664vw;
-left: 35.5vw;
-}
-.lineHorizontal2{
-height: .15vw;
-width: 29vw;
-background-color:rgb(124, 124, 124) ;
-position: absolute;
-top: 32.687vw;
-left: 35.5vw;
-}
-#Next{
-background-color: rgb(255, 255, 255);
-height: 2.3vw;
-width: 6.5vw;
-position: absolute;
-border-radius: 1.5vw;
-top: 43vw;
-left: 51.3vw;
-border: .11vw solid rgb(124, 124, 124);
-font-family: 'Montserrat Alternates', sans-serif;
-text-align: center;
-padding: .3vw;
-font-size: 1.7vw;
-color: rgb(0, 100, 250);
-display:none;
-transition: .5s;
-cursor: pointer;
- }
- #Next:hover{
-  
-    color: #ffffff;
-    height: 2.3vw;
-    width: 6.5vw;
-    text-align: center;
-    padding: .3vw;
-    font-size: 1.7vw;
-    box-shadow: inset 15.5vw 0 0 0 rgb(0, 100, 250);
-    border: .1vw solid rgb(0, 63, 134);
-}
-#Previous{
-background-color: rgb(255, 255, 255);
-font-size: 1.7vw;
-color: rgb(0, 100, 250);
-height: 2.3vw;
-width: 9vw;
-position: absolute;
-border-radius: 1.5vw;
-top: 43vw;
-left: 39vw;
-border: .11vw solid rgb(124, 124, 124);
-font-family: 'Montserrat Alternates', sans-serif;
-text-align: center;
-padding: .3vw;
-display:none;
-transition: .5s;
-cursor: pointer;
-}
-#Previous:hover{
-  
-    color: #ffffff;
-    height: 2.3vw;
-    width: 9vw;
-    text-align: center;
-    padding: .3vw;
-    font-size: 1.7vw;
-    box-shadow: inset 15.5vw 0 0 0 rgb(0, 100, 250);
-    border: .1vw solid rgb(0, 63, 134);
-}
-#Next.showBtn,#Previous.showBtn{
-  display: initial;
-}
-.ow{
-position: absolute;
-top:10.3vw;
-left:0vw;
-height: 40vw;
-width: 40vw;
-opacity: 35%;
-z-index: 20;
-}
-.eks{
-position: absolute;
-right: 0vw;
-top: 0vw;
-opacity: 35%;
-height: 40vw;
-width: 40vw;
-z-index: 20;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
+.cell:not(:nth-child(3n)) {
+  border-right: var(--rule) solid var(--line);
+}
+
+.cell:nth-child(-n + 6) {
+  border-bottom: var(--rule) solid var(--line);
+}
+
+.cell--x {
+  background-image: url("images/X input.png");
+}
+
+.cell--o {
+  background-image: url("images/O input.png");
+}
+
+.cell:disabled {
+  cursor: default;
+}
+
+.cell:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: -5px;
+}
+
+@media (hover: hover) {
+  .cell:enabled:hover {
+    background-color: var(--surface-hover);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Confetti
+   Sits above the board but below the title screen, and never takes a click.
+   -------------------------------------------------------------------------- */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  /* A canvas is a replaced element: without an explicit size it lays out at
+     its intrinsic width/height, not the inset box. Dropping these leaves the
+     drawing surface scaled wrong on any screen where devicePixelRatio > 1. */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Replay controls
+   The row keeps its height whether or not the buttons are showing, so
+   revealing them at the end of a game never shifts the board.
+   -------------------------------------------------------------------------- */
+
+.replay {
+  display: flex;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  min-height: 2.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   Adjustments
+   -------------------------------------------------------------------------- */
+
+/* Short landscape screens have width to spare but almost no height, so the
+   board moves beside the controls instead of below them. */
+@media (orientation: landscape) and (max-height: 520px) {
+  :root {
+    --board-size: min(70vh, 45vw);
+    --stack-gap: 0.4rem;
+  }
+
+  body {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .banner {
+    width: min(45vw, 300px);
+  }
+
+  .game {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "status  board"
+      "restart board"
+      "replay  board";
+    align-items: center;
+    justify-items: center;
+    column-gap: clamp(1rem, 4vw, 2rem);
+  }
+
+  .status {
+    grid-area: status;
+  }
+
+  .btn--restart {
+    grid-area: restart;
+  }
+
+  .board {
+    grid-area: board;
+  }
+
+  .replay {
+    grid-area: replay;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
